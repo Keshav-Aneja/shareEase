@@ -1,5 +1,6 @@
 import { Status } from "../config/constants";
 import { Expense } from "../models/expense.model";
+import { SharedPayment } from "../models/sharedPayment.model";
 import { User } from "../models/user.model";
 import { apiError } from "../utils/apiError";
 import { apiResponse } from "../utils/apiResponse";
@@ -118,24 +119,37 @@ const logoutUser = asyncHandler(async (req,res) => {
 })
 
 const getCurrentUser = asyncHandler(async (req,res) => {
-    // const totalAmount = await Expense.aggregate([
-    //     { $match: { owner: req.user?._id } },
-    //     { $group: { _id: null, total: { $sum: "$amount" } } }
-    // ]);
-    // if((!totalAmount && totalAmount !=0) || !req.user)
-    // {
-    //     throw new apiError(Status.NotFound, "Error fetching user details");
-    // }
-    // const userData = {
-    //     _id: req.user._id,
-    //     username: req.user.username,
-    //     email: req.user.email,
-    //     fullName: req.user.fullName,
-    //     toCollect: req.user.toCollect,
-    //     toPay: req.user.toPay,
-    //     totalExpenses: totalAmount[0].total,
-    // };
-    return res.status(Status.Ok).json(new apiResponse(Status.Ok, req.user || {}, "User fetched successfully"));
+    const totalAmount = await Expense.aggregate([
+        { $match: { owner: req.user?._id } },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    if((!totalAmount) || !req.user)
+    {
+        throw new apiError(Status.NotFound, "Error fetching user details");
+    }
+    const toRecievePayments = await SharedPayment.aggregate([
+        { $match: {receiverId: req.user?._id, pending: true} },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    const toPayPayments = await SharedPayment.aggregate([
+        { $match: {payerId: req.user?._id, pending: true} },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+    if((!toRecievePayments) || (!toPayPayments))
+    {
+        throw new apiError(Status.NotFound, "Error fetching user details");
+    }
+    const userData = {
+        _id: req.user._id,
+        username: req.user.username,
+        email: req.user.email,
+        fullName: req.user.fullName,
+        toCollect: toRecievePayments.length > 0 ? toRecievePayments[0].total : 0,
+        toPay: toPayPayments.length > 0 ? toPayPayments[0]?.total : 0,
+        totalExpenses: totalAmount.length>0 ? totalAmount[0]?.total : 0
+    };
+
+    return res.status(Status.Ok).json(new apiResponse(Status.Ok, userData, "User fetched successfully"));
 })
 
 const changeCurrentPassword = asyncHandler(async (req,res) => {

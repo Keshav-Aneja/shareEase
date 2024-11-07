@@ -1,5 +1,6 @@
 import { Status } from "../config/constants";
 import { Expense, type IExpense, type Split } from "../models/expense.model";
+import { SharedPayment } from "../models/sharedPayment.model";
 import { User } from "../models/user.model";
 import { apiError } from "../utils/apiError";
 import { apiResponse } from "../utils/apiResponse";
@@ -30,15 +31,15 @@ import { asyncTransactionHandler } from "../utils/asyncTransactionHandler";
 //     return res.status(Status.Created).json(new apiResponse(Status.Created, expense, "Expense added successfully"));
 // })
 
-const deleteExpense = asyncHandler(async (req,res) => {
+const deleteExpense = asyncTransactionHandler(Expense,async (req,res,next,session) => {
     const {id} = req.params;
     const expense = await Expense.findById(id);
     if(!expense)
     {
         throw new apiError(Status.BadRequest,"Expense not found or already deleted");
     }
-
-    await Expense.deleteOne({_id: id});
+    await Expense.deleteOne({_id: id}).session(session);
+    await SharedPayment.deleteMany({expenseId: id}).session(session);
     return res.status(Status.Ok).json(new apiResponse(Status.NoContent, {}, "Expense deleted successfully"));
 })
 
@@ -103,23 +104,7 @@ const addNewExpense = asyncTransactionHandler(Expense,async(req,res,next,session
             myAmount = myShare.split_amount ?? amount;
         }
     }
-    for(const user_split of userSplits){
-        if(user_split.user_id !== String(req.user?._id)) {
-            const user = await User.findById(user_split.user_id).session(session);
-            if(!user)
-            {
-                throw new apiError(Status.BadRequest, "Error splitting amounts among users");
-            }
-            const newPendingPayments = user.pendingPayments || [];
-            newPendingPayments.push({
-                user_id: req.user?._id,
-                amount: user_split.split_amount,
-                pending: true,
-            })
-            user.pendingPayments = newPendingPayments;
-            await user.save({session})
-        }
-    }
+    
     const newExpense = await Expense.create([{
         owner: req.user?._id,
         amount:myAmount,
@@ -130,13 +115,22 @@ const addNewExpense = asyncTransactionHandler(Expense,async(req,res,next,session
         split: split ? split : [],
     }],{session})
     const expense = await Expense.findById(newExpense[0]._id).populate("owner", "username email fullName").session(session);
-
     if(!expense)
     {
         throw new apiError(Status.BadRequest,"Error adding expense");
     }
-
+    for(const user_split of userSplits){
+        if(user_split.user_id !== String(req.user?._id)) {
+            await SharedPayment.create([{
+                payerId: req.user?._id,
+                receiverId: user_split.user_id,
+                amount: user_split.split_amount,
+                expenseId: expense._id,
+                pending: true
+            }],{session});
+        }
+    }
     return res.status(Status.Created).json(new apiResponse(Status.Created, expense, "Expense added successfully"));
 })
 
-export {addNewExpense, deleteExpense, updateExpense, getAllExpenses, getExpenseById,newRoute}
+export {addNewExpense, deleteExpense, updateExpense, getAllExpenses, getExpenseById}
