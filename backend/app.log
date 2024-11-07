@@ -1,0 +1,2 @@
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v1/user/login\",\"status\":\"401\",\"responseTime\":\"75.099\"}","timestamp":"2024-11-07T20:04:27.597Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v1/user/login\",\"status\":\"400\",\"responseTime\":\"0.333\"}","timestamp":"2024-11-07T20:04:54.146Z"}
