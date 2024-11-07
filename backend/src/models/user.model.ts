@@ -9,6 +9,10 @@ export interface IuserSchema {
     fullName:string;
     avatar?:string;
     refreshToken?:string;
+    totalExpenses:number;
+    toPay:number;
+    toCollect:number;
+    pendingPayments?:{user_id:string,amount:number, pending:boolean}[];
     comparePassword(password:string):Promise<boolean>;
     generateAccessToken():Promise<string>;
     generateRefreshToken():Promise<string>;
@@ -46,6 +50,30 @@ const userSchema = new Schema<IuserSchema>({
     },
     refreshToken:{
         type:String,
+    },
+    totalExpenses:{
+        type:Number,
+        default:0,
+    },
+    toCollect:{
+        type:Number,
+        default:0,
+    },
+    toPay:{
+        type:Number,
+        default:0
+    },
+    pendingPayments:{
+        type:[{
+            user_id: {
+                type: Schema.Types.ObjectId,
+                ref: "User"
+            },
+            amount: Number,
+            pending: Boolean
+        }],
+        default:[],
+        required:false,
     }
 }, { timestamps: true });
 

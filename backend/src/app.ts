@@ -2,6 +2,7 @@ import express from 'express';
 import cors from "cors"
 import { apiError } from './utils/apiError';
 import userRouter from './routes/user.routes';
+import expenseRouter from './routes/expense.routes';
 const app = express();
 app.use(
   cors({
@@ -20,7 +21,12 @@ app.use(express.static("public"));
 
 // Routes
 app.use("/api/v1/user",userRouter);
+app.use("/api/v1/expense",expenseRouter)
 
+// Not found handler
+app.use((_, res, next) => {
+  throw new apiError(404, "Resource not found");
+});
 
 // Error Response handler
 app.use((err:any, req:any, res:any, next:any) => {
