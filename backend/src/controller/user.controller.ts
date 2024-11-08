@@ -175,5 +175,18 @@ const changeCurrentPassword = asyncHandler(async (req,res) => {
     return res.status(Status.Ok).json(new apiResponse(Status.Ok,{}, "Password changed successfully"));
 })
 
+const findUserByUsernameorEmail = asyncHandler(async(req,res) => {
+    const {username, email} = req.body;
+    if(!username && !email)
+    {
+        throw new apiError(Status.BadRequest, "Username or email is required");
+    }
+    const user = await User.findOne({$or: [{username}, {email}]}).select("-password -refreshToken");
+    if(!user)
+    {
+        throw new apiError(Status.NotFound, "User not found");
+    }
+    return res.status(Status.Ok).json(new apiResponse(Status.Ok, user, "User found successfully"));
+})
 
-export {registerUser, loginUser, logoutUser, getCurrentUser, changeCurrentPassword};
+export {registerUser, loginUser, logoutUser, getCurrentUser, changeCurrentPassword, findUserByUsernameorEmail};

@@ -8,8 +8,8 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
-    "outDir": "./dist",
-
+    "outDir": "dist",
+    "rootDir": "src",
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -26,4 +26,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }
