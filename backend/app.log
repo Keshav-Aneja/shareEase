@@ -5,3 +5,4 @@
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v1/user/register\",\"status\":\"201\",\"responseTime\":\"209.467\"}","timestamp":"2024-11-08T09:33:10.091Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v1/user/find\",\"status\":\"200\",\"responseTime\":\"235.052\"}","timestamp":"2024-11-08T09:35:40.223Z"}
 {"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v1/user/find\",\"status\":\"200\",\"responseTime\":\"135.185\"}","timestamp":"2024-11-08T09:35:44.896Z"}
+{"level":"\u001b[32minfo\u001b[39m","message":"{\"method\":\"POST\",\"url\":\"/api/v1/user/find\",\"status\":\"200\",\"responseTime\":\"121.516\"}","timestamp":"2024-11-08T10:00:44.215Z"}

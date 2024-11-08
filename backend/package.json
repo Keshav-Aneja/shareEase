@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "build": "tsc"
+    "build": "bun build --entry src/index.ts --minify --target=bun --outfile dist/bundle.js"
   },
   "devDependencies": {
     "@types/bun": "^1.1.13"
@@ -13,17 +13,21 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.10",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/morgan": "^1.9.9",
+    "aws-sdk": "^2.1396.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
+    "mock-aws-s3": "^4.0.2",
     "mongoose": "^8.8.0",
     "morgan": "^1.10.0",
+    "nock": "^13.3.1",
     "uuid": "^11.0.2",
     "winston": "^3.16.0"
   }
